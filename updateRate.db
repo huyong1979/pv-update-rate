@@ -1,0 +1,26 @@
+#$(PV): LN-TS{EVR:1B}EvtHCnt-I
+record(ai, "$(PV)_Rate") {
+    field(DESC,"Update rate")
+    field(PINI,"YES")
+    field(PREC,"3")
+    field(EGU, "Hz")
+    field(VAL, "0")
+    field(MDEL, "-1")
+}
+
+record(longin, "$(PV)_Error") {
+    field(DESC,"Error count")
+    field(PINI,"YES")
+    field(VAL, "0")
+}
+
+
+#record(bo, "$(PV)_Cmd_") {
+#    field(PINI,"YES")
+#    field(DTYP,"Launcher")
+#    field(DOL,"$(PV) CP")
+#    field(OMSL,"closed_loop")
+#    field(OUT, "@python /epics/iocs/pvUpdateRate/pv-rate.py $(PV)")
+#    field(ZNAM,"Idle")
+#    field(ONAM,"Setting")
+#}

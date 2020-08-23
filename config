@@ -1,0 +1,4 @@
+NAME=pvUpdateRate
+PORT=4054
+USER=softioc
+HOST=acc64-cr
