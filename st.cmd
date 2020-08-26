@@ -15,6 +15,8 @@ cd "/epics/iocs/pvUpdateRate/"
 dbLoadRecords("updateRate.db", "PV=LN-TS{EVR:1B}EvtHCnt-I")
 dbLoadRecords("updateRate.db", "PV=SR:C28-TS{EVR:G1A}EvtACnt-I")
 dbLoadRecords("updateRate.db", "PV=SR-TS{EVR:CRB4A}EvtACnt-I")
+dbLoadRecords("updateRate.db", "PV=ACC-TS{EVG-SoftSeq:InjN}Enable-RB")
+dbLoadRecords("updateRate.db", "PV=SR:C28-TS{EVR:G1A}EvtECnt-I")
 
 #cd $(TOP)
 #set_savefile_path("./as", "/save")
@@ -25,11 +27,19 @@ dbLoadRecords("updateRate.db", "PV=SR-TS{EVR:CRB4A}EvtACnt-I")
 iocInit()
 
 #LN-TS{EVR:1B}EvtHCnt-I: event 17, supposed ~ 2Hz
-system "python pv_rate.py LN-TS{EVR:1B}EvtHCnt-I 1.8 2.1 LN-BI{ACMI:1}FaultCode:3-Sts BTS-BI{ACMI:2}FaultCode:3-Sts &"
+system "python pv_rate.py LN-TS{EVR:1B}EvtHCnt-I 1.8 2.1 0 LN-BI{ACMI:1}FaultCode:3-Sts BTS-BI{ACMI:2}FaultCode:3-Sts &"
+
 #LN-TS{EVR:1B}EvtHCnt-I: event 32, supposed ~ 1Hz
-system "python pv_rate.py SR:C28-TS{EVR:G1A}EvtACnt-I 0.8 1.2 &"
+system "python pv_rate.py SR:C28-TS{EVR:G1A}EvtACnt-I 0.8 1.2 0 &"
+
 #SR-TS{EVR:CRB4A}EvtACnt-I: event 25, supposed ~ 1Hz
-system "python pv_rate.py SR-TS{EVR:CRB4A}EvtACnt-I 0.8 1.2 &"
+system "python pv_rate.py SR-TS{EVR:CRB4A}EvtACnt-I 0.8 1.2 0 &"
+
+#ACC-TS{EVG-SoftSeq:InjN}Enable-RB: supposed to be ~1Hz
+system "python pv_rate.py ACC-TS{EVG-SoftSeq:InjN}Enable-RB 0.8 1.2 0 &"
+
+#SR:C28-TS{EVR:G1A}EvtECnt-I: event 125, supposed to be ~1Hz
+system "python pv_rate.py SR:C28-TS{EVR:G1A}EvtECnt-I 0.8 1.2 0 &"
 
 #makeAutosaveFileFromDbInfo("./as/req/settings_pass0.req", "autosaveFields_pass0")
 #create_monitor_set("settings_pass0.req", 30 , "")

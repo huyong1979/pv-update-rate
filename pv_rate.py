@@ -6,17 +6,18 @@ from cothread import WaitForQuit
 from cothread.catools import camonitor, FORMAT_TIME, caput, caget
 import traceback
 
-if len(sys.argv) < 4:
-    print("usage: %s pv_name low_rate high_rate other_pvs"%sys.argv[0])
+if len(sys.argv) < 5:
+    print("usage: %s pv_name low_rate high_rate ts_debug other_pvs"%sys.argv[0])
     sys.exit()
 
 pv_name = sys.argv[1]
 low_rate = float(sys.argv[2])
 high_rate = float(sys.argv[3])
+ts_debug = int(sys.argv[4])
 other_pvs = []
 other_pvs_prevVAL = []
-if len(sys.argv) > 4:
-    other_pvs = sys.argv[4:]
+if len(sys.argv) > 5:
+    other_pvs = sys.argv[5:]
     other_pvs_prevVAL = caget(other_pvs)
 #print(other_pvs)
 
@@ -26,6 +27,7 @@ pv_prevTS = prev_value.raw_stamp[0] + prev_value.raw_stamp[1]*1.0e-9
 local_prevTS = time.time() #previous local timestamp
 str_prevTS = datetime.now() # a string
 error_count = 0
+max_rate = 1000 # 1000Hz for PV update rate? or just a glitch
 
 def callback(value):
     try:
@@ -40,7 +42,8 @@ def callback(value):
         str_currTS = datetime.now()
         local_currTS = time.time() #current local timestamp
         rate = 1.0/(local_currTS - local_prevTS)
-        if rate < low_rate or rate > high_rate:
+        #if rate < low_rate or rate > high_rate:
+        if rate < low_rate or max_rate > rate > high_rate:
             print("\n%s:\n\tthe update rate of %s is %.3fHz (%.3f-sec), out of [%.3f, %.3f]"
                     %(str_currTS, value.name, rate, 1.0/rate, low_rate, high_rate))
             print("\tprevious localtime and value: %s, %s"%(str_prevTS,prev_value))
@@ -57,11 +60,12 @@ def callback(value):
         local_prevTS  = local_currTS
         prev_value = value
 
-        pv_currTS = value.raw_stamp[0] + value.raw_stamp[1]*1.0e-9
-        if (pv_currTS - pv_prevTS)==0: 
-            print("\n%s: the timestamp of %s is not updated"%(str_currTS, value.name))       
-            print "\t%s is the time from the PV"%str(datetime.fromtimestamp(pv_currTS))
-        pv_prevTS = pv_currTS
+        if ts_debug == 1:
+            pv_currTS = value.raw_stamp[0] + value.raw_stamp[1]*1.0e-9
+            if (pv_currTS - pv_prevTS)==0: 
+                print("\n%s: the timestamp of %s is not updated"%(str_currTS, value.name))       
+                print "\t%s is the time from the PV"%str(datetime.fromtimestamp(pv_currTS))
+            pv_prevTS = pv_currTS
     except:
         error_count += 1
         caput(str(pv_name)+"_Error", error_count)
